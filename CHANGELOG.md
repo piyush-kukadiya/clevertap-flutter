@@ -1,5 +1,18 @@
 ## CHANGE LOG
 
+### Version 4.2.0 *(10 June 2026)*
+-------------------------------------------
+**What's new**
+
+* **[Android Platform]**
+  * Supports [CleverTap Android SDK v8.3.0](https://github.com/CleverTap/clevertap-android-sdk/blob/master/docs/CTCORECHANGELOG.md#version-830-june-2026).
+  * App Inbox Cross-Device Sync — inbox state (read, deleted) now syncs across a user's devices automatically. The built-in `showInbox()` view includes pull-to-refresh (throttled to once every 5 minutes). Duplicate `Notification Viewed`/`Notification Clicked` events for the same inbox message are automatically suppressed.
+
+**API changes**
+* **[Android Platform]**
+  * New API: `fetchInbox()` - Triggers an on-demand App Inbox refresh from the server; returns `Future<bool?>` indicating success or failure. Throttled to once every 5 minutes (shared with the pull-to-refresh gesture).
+  * New API: `pushDisplayUnitElementClickedEventForId(unitId, additionalProperties)` - Records a `Notification Clicked` event for a specific element within a Display Unit, merging caller-supplied `additionalProperties` (including `wzrk_element_id`) with cached attribution fields for finer-grained click analytics.
+
 ### Version 4.1.0 *(9 June 2026)*
 -------------------------------------------
 **What's new**

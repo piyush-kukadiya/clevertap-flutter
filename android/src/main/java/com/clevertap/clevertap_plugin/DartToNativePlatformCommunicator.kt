@@ -9,6 +9,7 @@ import android.util.Log
 import com.clevertap.android.sdk.CleverTapAPI
 import com.clevertap.android.sdk.UTMDetail
 import com.clevertap.android.sdk.events.EventDetail
+import com.clevertap.android.sdk.FetchInboxCallback
 import com.clevertap.android.sdk.inapp.callbacks.FetchInAppsCallback
 import com.clevertap.android.sdk.inapp.customtemplates.CustomTemplateContext
 import com.clevertap.android.sdk.inbox.CTInboxMessage
@@ -376,6 +377,10 @@ class DartToNativePlatformCommunicator(
                 initializeInbox(result)
             }
 
+            "fetchInbox" -> {
+                fetchInbox(result)
+            }
+
             "showInbox" -> {
                 showInbox(call, result)
             }
@@ -502,6 +507,10 @@ class DartToNativePlatformCommunicator(
 
             "pushDisplayUnitClickedEvent" -> {
                 pushDisplayUnitClickedEvent(call, result)
+            }
+
+            "pushDisplayUnitElementClickedEventForId" -> {
+                pushDisplayUnitElementClickedEventForId(call, result)
             }
 
             "getFeatureFlag" -> {
@@ -1532,6 +1541,18 @@ class DartToNativePlatformCommunicator(
         }
     }
 
+    private fun fetchInbox(result: MethodChannel.Result) {
+        if (cleverTapAPI != null) {
+            cleverTapAPI.fetchInbox(object : FetchInboxCallback {
+                override fun onInboxFetched(success: Boolean) {
+                    result.success(success)
+                }
+            })
+        } else {
+            result.error(TAG, ERROR_MSG, null)
+        }
+    }
+
     private fun onUserLogin(call: MethodCall, result: MethodChannel.Result) {
         val profile: Map<String, Any> = Utils.dartMapToProfileMap(call.argument("profile"))
         if (cleverTapAPI != null) {
@@ -1699,6 +1720,17 @@ class DartToNativePlatformCommunicator(
         val unitId = call.argument<String>("unitId")
         if (cleverTapAPI != null) {
             cleverTapAPI.pushDisplayUnitClickedEventForID(unitId)
+            result.success(null)
+        } else {
+            result.error(TAG, ERROR_MSG, null)
+        }
+    }
+
+    private fun pushDisplayUnitElementClickedEventForId(call: MethodCall, result: MethodChannel.Result) {
+        val unitId = call.argument<String>("unitId")
+        val additionalProperties = call.argument<Map<String, Any>>("additionalProperties")
+        if (cleverTapAPI != null) {
+            cleverTapAPI.pushDisplayUnitElementClickedEventForID(unitId, HashMap(additionalProperties ?: emptyMap()))
             result.success(null)
         } else {
             result.error(TAG, ERROR_MSG, null)

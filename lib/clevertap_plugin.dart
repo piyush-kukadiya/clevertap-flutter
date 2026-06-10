@@ -80,7 +80,7 @@ class CleverTapPlugin {
   static const libName = 'Flutter';
 
   static const libVersion =
-      40100; // If the current version is X.X.X then pass as X0X0X
+      40200; // If the current version is X.X.X then pass as X0X0X
 
   CleverTapPlugin._internal() {
     /// Set the CleverTap Flutter library name and the current version for version tracking
@@ -1053,6 +1053,19 @@ class CleverTapPlugin {
     return await _dartToNativeMethodChannel.invokeMethod('initializeInbox', {});
   }
 
+  /// Triggers an on-demand fetch of App Inbox messages from the server.
+  ///
+  /// Returns: `true` if messages were fetched and applied to the local cache;
+  /// `false` if the fetch was throttled (once per 5 minutes), disabled, or
+  /// failed due to a network/server error. Returns `null` if CleverTap is
+  /// not initialized.
+  ///
+  /// Note: The SDK already fetches inbox messages automatically on app launch
+  /// and user login. Use this method for manual on-demand refresh.
+  static Future<bool?> fetchInbox() async {
+    return await _dartToNativeMethodChannel.invokeMethod('fetchInbox', {});
+  }
+
   /// Opens CTInboxActivity to display Inbox Messages
   static Future<void> showInbox(Map<String, dynamic> styleConfig) async {
     return await _dartToNativeMethodChannel
@@ -1167,6 +1180,25 @@ class CleverTapPlugin {
   static Future<void> pushDisplayUnitClickedEvent(String unitId) async {
     return await _dartToNativeMethodChannel
         .invokeMethod('pushDisplayUnitClickedEvent', {'unitId': unitId});
+  }
+
+  /// Records a `Notification Clicked` event for a specific element within a
+  /// Display Unit. Use this when a user taps on an individual element (e.g. a
+  /// button or image) rather than the unit as a whole.
+  ///
+  /// Parameters:
+  /// - [unitId]: The ID of the Display Unit containing the element.
+  /// - [additionalProperties]: Element-level properties, including
+  ///   `wzrk_element_id` from the action's metadata, merged with cached
+  ///   attribution fields for analytics.
+  static Future<void> pushDisplayUnitElementClickedEventForId(
+    String unitId,
+    Map<String, dynamic> additionalProperties,
+  ) async {
+    return await _dartToNativeMethodChannel.invokeMethod(
+      'pushDisplayUnitElementClickedEventForId',
+      {'unitId': unitId, 'additionalProperties': additionalProperties},
+    );
   }
 
   ///Feature Flags
