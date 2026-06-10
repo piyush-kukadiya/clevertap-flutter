@@ -9,4 +9,5 @@ build/
 example/pubspec.lock
 pubspec.lock
 example/android/app/property*
+example/ios/Flutter/ephemeral/
 
