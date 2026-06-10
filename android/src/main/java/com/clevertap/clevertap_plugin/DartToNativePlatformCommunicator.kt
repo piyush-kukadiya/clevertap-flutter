@@ -11,7 +11,6 @@ import com.clevertap.android.sdk.UTMDetail
 import com.clevertap.android.sdk.events.EventDetail
 import com.clevertap.android.sdk.inapp.callbacks.FetchInAppsCallback
 import com.clevertap.android.sdk.inapp.customtemplates.CustomTemplateContext
-import com.clevertap.android.sdk.FetchInboxCallback
 import com.clevertap.android.sdk.inbox.CTInboxMessage
 import com.clevertap.android.sdk.pushnotification.PushConstants
 import com.clevertap.android.sdk.pushnotification.PushNotificationHandler
@@ -385,14 +384,6 @@ class DartToNativePlatformCommunicator(
                 dismissInbox(result)
             }
 
-            "fetchInbox" -> {
-                fetchInbox(result)
-            }
-
-            "fetchInboxWithCallback" -> {
-                fetchInboxWithCallback(result)
-            }
-
             "getInboxMessageCount" -> {
                 getInboxMessageCount(result)
             }
@@ -511,10 +502,6 @@ class DartToNativePlatformCommunicator(
 
             "pushDisplayUnitClickedEvent" -> {
                 pushDisplayUnitClickedEvent(call, result)
-            }
-
-            "pushDisplayUnitElementClickedEvent" -> {
-                pushDisplayUnitElementClickedEvent(call, result)
             }
 
             "getFeatureFlag" -> {
@@ -1545,27 +1532,6 @@ class DartToNativePlatformCommunicator(
         }
     }
 
-    private fun fetchInbox(result: MethodChannel.Result) {
-        if (cleverTapAPI != null) {
-            cleverTapAPI.fetchInbox()
-            result.success(null)
-        } else {
-            result.error(TAG, ERROR_MSG, null)
-        }
-    }
-
-    private fun fetchInboxWithCallback(result: MethodChannel.Result) {
-        if (cleverTapAPI != null) {
-            cleverTapAPI.fetchInbox(object : FetchInboxCallback {
-                override fun onInboxFetched(isSuccess: Boolean) {
-                    result.success(isSuccess)
-                }
-            })
-        } else {
-            result.error(TAG, ERROR_MSG, null)
-        }
-    }
-
     private fun onUserLogin(call: MethodCall, result: MethodChannel.Result) {
         val profile: Map<String, Any> = Utils.dartMapToProfileMap(call.argument("profile"))
         if (cleverTapAPI != null) {
@@ -1733,17 +1699,6 @@ class DartToNativePlatformCommunicator(
         val unitId = call.argument<String>("unitId")
         if (cleverTapAPI != null) {
             cleverTapAPI.pushDisplayUnitClickedEventForID(unitId)
-            result.success(null)
-        } else {
-            result.error(TAG, ERROR_MSG, null)
-        }
-    }
-
-    private fun pushDisplayUnitElementClickedEvent(call: MethodCall, result: MethodChannel.Result) {
-        val unitId = call.argument<String>("unitId")
-        val additionalProperties = call.argument<HashMap<String, Any>>("additionalProperties")
-        if (cleverTapAPI != null) {
-            cleverTapAPI.pushDisplayUnitElementClickedEventForID(unitId, additionalProperties)
             result.success(null)
         } else {
             result.error(TAG, ERROR_MSG, null)
