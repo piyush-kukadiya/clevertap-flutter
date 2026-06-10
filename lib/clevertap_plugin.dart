@@ -80,7 +80,7 @@ class CleverTapPlugin {
   static const libName = 'Flutter';
 
   static const libVersion =
-      40100; // If the current version is X.X.X then pass as X0X0X
+      40200; // If the current version is X.X.X then pass as X0X0X
 
   CleverTapPlugin._internal() {
     /// Set the CleverTap Flutter library name and the current version for version tracking
@@ -1169,6 +1169,19 @@ class CleverTapPlugin {
         .invokeMethod('pushDisplayUnitClickedEvent', {'unitId': unitId});
   }
 
+  /// Records a Notification Clicked event for a specific element within a Display Unit.
+  ///
+  /// Parameters:
+  /// - [unitId]: The Display Unit ID.
+  /// - [additionalProperties]: Caller-supplied properties to attach to the event,
+  ///   including `wzrk_element_id` from the clicked element's metadata.
+  static Future<void> pushDisplayUnitElementClickedEvent(
+      String unitId, Map<String, dynamic> additionalProperties) async {
+    return await _dartToNativeMethodChannel.invokeMethod(
+        'pushDisplayUnitElementClickedEvent',
+        {'unitId': unitId, 'additionalProperties': additionalProperties});
+  }
+
   ///Feature Flags
   @Deprecated(
       "This method is deprecated since v1.3.0. Use getCleverTapID() instead")
@@ -1433,6 +1446,25 @@ class CleverTapPlugin {
   static Future<void> clearInAppResources(bool expiredOnly) async {
     return await _dartToNativeMethodChannel.invokeMethod(
         'clearInAppResources', expiredOnly);
+  }
+
+  /// Triggers an on-demand App Inbox refresh from the server (fire-and-forget).
+  ///
+  /// Calls are throttled to once every 5 minutes between consecutive calls,
+  /// shared with the built-in pull-to-refresh gesture.
+  static Future<void> fetchInbox() async {
+    return await _dartToNativeMethodChannel.invokeMethod('fetchInbox', {});
+  }
+
+  /// Triggers an on-demand App Inbox refresh from the server.
+  ///
+  /// Returns: true if the fetch succeeded, false if throttled or failed.
+  ///
+  /// Calls are throttled to once every 5 minutes between consecutive calls,
+  /// shared with the built-in pull-to-refresh gesture.
+  static Future<bool?> fetchInboxWithCallback() async {
+    return await _dartToNativeMethodChannel
+        .invokeMethod('fetchInboxWithCallback', {});
   }
 
   /**
