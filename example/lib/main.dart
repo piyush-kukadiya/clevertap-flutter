@@ -732,6 +732,11 @@ class _MyAppState extends State<MyApp> {
                         "Push Inbox Message Viewed",
                         pushInboxNotificationViewedEventForId,
                         "Pushes/Records inbox message viewed event"),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Fetch Inbox",
+                        fetchInbox,
+                        "Triggers an on-demand App Inbox refresh; returns success/failure."),
                 ]),
                 _buildExpansionTile("Enable Debugging", [
                   _buildListTile("Set Debug Level", () {
@@ -795,6 +800,11 @@ class _MyAppState extends State<MyApp> {
                         "Returns session UTM details"),
                     _buildListTile("Get Ad Units", getAdUnits,
                         "Returns all Display Units set"),
+                    if (!kIsWeb)
+                      _buildListTile(
+                          "Push Display Unit Element Clicked",
+                          pushDisplayUnitElementClickedEventForId,
+                          "Records a Notification Clicked event for a specific element within a Display Unit."),
                   ]),
                 _buildExpansionTile("GDPR", [ 
                   _buildListTile("Opt Out User", () => setOptOut(true), "Opt Out User fully"),
@@ -1781,6 +1791,32 @@ class _MyAppState extends State<MyApp> {
 
     // Uncomment to print payload.
     // printDisplayUnitPayload(displayUnits);
+  }
+
+  void fetchInbox() async {
+    bool? success = await CleverTapPlugin.fetchInbox();
+    if (success == null) {
+      showToast("Fetch Inbox -> CleverTap not initialized");
+      print("Fetch Inbox -> null (not initialized)");
+    } else if (success) {
+      showToast("Fetch Inbox -> success, check console");
+      print("Fetch Inbox -> success");
+    } else {
+      showToast("Fetch Inbox -> throttled or failed, check console");
+      print("Fetch Inbox -> false (throttled or failed)");
+    }
+  }
+
+  void pushDisplayUnitElementClickedEventForId() {
+    Map<String, dynamic> additionalProperties = {
+      "wzrk_element_id": "button_1",
+      "custom_key": "custom_value",
+    };
+    CleverTapPlugin.pushDisplayUnitElementClickedEventForId(
+        "sample_unit_id", additionalProperties);
+    showToast("Display Unit element clicked event pushed");
+    print("Display Unit Element Clicked -> unitId: sample_unit_id, props: " +
+        additionalProperties.toString());
   }
 
   void promptForPushNotification() {
