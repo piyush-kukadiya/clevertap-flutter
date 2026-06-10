@@ -55,7 +55,7 @@ on:
 
 jobs:
   sync:
-    uses: piyush-kukadiya/clevertap-wrapper-tooling/.github/workflows/sync.yml@v1
+    uses: CleverTap/clevertap-wrapper-tooling/.github/workflows/sync.yml@v1
     with:
       wrapper:         flutter
       android_module:  ${{ inputs.android_module != 'none' && inputs.android_module || '' }}
