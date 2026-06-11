@@ -428,6 +428,14 @@ class DartToNativePlatformCommunicator(
                 pushInboxNotificationViewedEventForId(call, result)
             }
 
+            "fetchInbox" -> {
+                fetchInbox(result)
+            }
+
+            "fetchInboxWithCallback" -> {
+                fetchInboxWithCallback(result)
+            }
+
             "syncVariables" -> {
                 syncVariables(result)
             }
@@ -502,6 +510,10 @@ class DartToNativePlatformCommunicator(
 
             "pushDisplayUnitClickedEvent" -> {
                 pushDisplayUnitClickedEvent(call, result)
+            }
+
+            "pushDisplayUnitElementClickedEventForID" -> {
+                pushDisplayUnitElementClickedEventForID(call, result)
             }
 
             "getFeatureFlag" -> {
@@ -1710,6 +1722,41 @@ class DartToNativePlatformCommunicator(
         if (cleverTapAPI != null) {
             cleverTapAPI.pushDisplayUnitViewedEventForID(unitId)
             result.success(null)
+        } else {
+            result.error(TAG, ERROR_MSG, null)
+        }
+    }
+
+    private fun pushDisplayUnitElementClickedEventForID(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        val unitId = call.argument<String>("unitId")
+        val additionalProperties =
+            call.argument<java.util.HashMap<String, Any>>("additionalProperties")
+                ?: java.util.HashMap()
+        if (cleverTapAPI != null) {
+            cleverTapAPI.pushDisplayUnitElementClickedEventForID(unitId, additionalProperties)
+            result.success(null)
+        } else {
+            result.error(TAG, ERROR_MSG, null)
+        }
+    }
+
+    private fun fetchInbox(result: MethodChannel.Result) {
+        if (cleverTapAPI != null) {
+            cleverTapAPI.fetchInbox()
+            result.success(null)
+        } else {
+            result.error(TAG, ERROR_MSG, null)
+        }
+    }
+
+    private fun fetchInboxWithCallback(result: MethodChannel.Result) {
+        if (cleverTapAPI != null) {
+            cleverTapAPI.fetchInbox { success ->
+                result.success(success)
+            }
         } else {
             result.error(TAG, ERROR_MSG, null)
         }

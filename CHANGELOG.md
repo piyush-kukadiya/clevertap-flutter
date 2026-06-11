@@ -1,5 +1,28 @@
 ## CHANGE LOG
 
+### Version 4.2.0 *(11 June 2026)*
+-------------------------------------------
+**What's new**
+
+* **[Android Platform]**
+  * Supports [CleverTap Android SDK v8.3.0](https://github.com/CleverTap/clevertap-android-sdk/blob/master/docs/CTCORECHANGELOG.md#version-830-june-2026).
+  * App Inbox Cross-Device Sync (shipped in Android SDK v8.2.0) — inbox state (read, deleted) syncs across a user's devices automatically. Includes a pull-to-refresh gesture in the built-in `showInbox()` view, throttled to once every 5 minutes.
+
+* **[iOS Platform]**
+  * Supports [CleverTap iOS SDK v7.7.1](https://github.com/CleverTap/clevertap-ios-sdk/blob/master/CHANGELOG.md#version-771-june-4-2026).
+  * Silent-in-foreground push notifications via `wzrk_sif:true` payload key — server-controlled; no app code required when using `autoIntegrate`.
+  * App Inbox Cross-Device Sync — inbox state (read, deleted) syncs automatically across a user's devices (introduced in iOS SDK v7.7.0).
+
+**API changes**
+* **[Android and iOS Platform]**
+  * New API: `fetchInbox({onComplete})` - Triggers an on-demand App Inbox refresh from the server. Fire-and-forget when called with no argument; supply an optional `void Function(bool success)` callback to receive the fetch result. Both forms are throttled to once every 5 minutes between consecutive calls.
+  * New API: `pushDisplayUnitElementClickedEventForID(unitId, additionalProperties)` - Records a `Notification Clicked` event for a specific element within a Display Unit, with caller-supplied `additionalProperties` (e.g. `wzrk_element_id`) enriched with cached `wzrk_*` attribution fields for finer-grained click analytics.
+
+**Bug Fixes**
+* **[iOS Platform]**
+  * Fixes a bug where server-side InApps evaluation IDs were being duplicated in UserDefaults.
+  * Fixes a bug where apps were freezing when InApps were being shown in low network conditions.
+
 ### Version 4.1.0 *(9 June 2026)*
 -------------------------------------------
 **What's new**
