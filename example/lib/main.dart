@@ -365,6 +365,23 @@ class _MyAppState extends State<MyApp> {
     CleverTapPlugin.dismissInbox();
   }
 
+  void fetchInbox() {
+    CleverTapPlugin.fetchInbox();
+    showToast("Inbox fetch triggered");
+    print("fetchInbox -> triggered");
+  }
+
+  void fetchInboxWithCallback() async {
+    bool? success = await CleverTapPlugin.fetchInboxWithCallback();
+    if (success == null) {
+      showToast("No result");
+      print("fetchInboxWithCallback -> null");
+    } else {
+      showToast("Inbox fetch: ${success ? 'success' : 'failed/throttled'}");
+      print("fetchInboxWithCallback -> $success");
+    }
+  }
+
   void profileDidInitialize() {
     this.setState(() {
       print("profileDidInitialize called");
@@ -697,6 +714,16 @@ class _MyAppState extends State<MyApp> {
                   if (!kIsWeb)
                     _buildListTile("Show Inbox with sections",
                         showInboxWithTabs, "Opens sample App Inbox"),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Fetch Inbox",
+                        fetchInbox,
+                        "Triggers an on-demand inbox refresh (fire-and-forget)."),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Fetch Inbox With Callback",
+                        fetchInboxWithCallback,
+                        "Triggers an on-demand inbox refresh and returns success/failure."),
                   _buildListTile("Get All Inbox Messages", getAllInboxMessages,
                       "Returns all inbox messages"),
                   _buildListTile("Get Unread Inbox Messages",
@@ -795,6 +822,11 @@ class _MyAppState extends State<MyApp> {
                         "Returns session UTM details"),
                     _buildListTile("Get Ad Units", getAdUnits,
                         "Returns all Display Units set"),
+                    if (!kIsWeb)
+                      _buildListTile(
+                          "Push Display Unit Element Clicked",
+                          pushDisplayUnitElementClickedEvent,
+                          "Records a click on a specific element within a Display Unit."),
                   ]),
                 _buildExpansionTile("GDPR", [ 
                   _buildListTile("Opt Out User", () => setOptOut(true), "Opt Out User fully"),
@@ -1781,6 +1813,18 @@ class _MyAppState extends State<MyApp> {
 
     // Uncomment to print payload.
     // printDisplayUnitPayload(displayUnits);
+  }
+
+  void pushDisplayUnitElementClickedEvent() {
+    Map<String, dynamic> additionalProperties = {
+      "wzrk_element_id": "banner_cta_1",
+    };
+    CleverTapPlugin.pushDisplayUnitElementClickedEvent(
+      "sample_display_unit_id",
+      additionalProperties,
+    );
+    showToast("Display Unit element click recorded");
+    print("pushDisplayUnitElementClickedEvent -> called with unitId: sample_display_unit_id");
   }
 
   void promptForPushNotification() {
