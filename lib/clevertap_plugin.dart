@@ -1053,6 +1053,22 @@ class CleverTapPlugin {
     return await _dartToNativeMethodChannel.invokeMethod('initializeInbox', {});
   }
 
+  /// Triggers an on-demand App Inbox refresh (fire-and-forget).
+  /// The fetch is throttled to once every 5 minutes between consecutive calls.
+  static Future<void> fetchInbox() async {
+    return await _dartToNativeMethodChannel.invokeMethod('fetchInbox', {});
+  }
+
+  /// Triggers an on-demand App Inbox refresh and returns whether the fetch succeeded.
+  /// The fetch is throttled to once every 5 minutes between consecutive calls.
+  ///
+  /// Returns: true if messages were fetched and applied to the local cache;
+  /// false if the fetch was throttled or failed.
+  static Future<bool?> fetchInboxWithCallback() async {
+    return await _dartToNativeMethodChannel
+        .invokeMethod('fetchInboxWithCallback', {});
+  }
+
   /// Opens CTInboxActivity to display Inbox Messages
   static Future<void> showInbox(Map<String, dynamic> styleConfig) async {
     return await _dartToNativeMethodChannel
@@ -1167,6 +1183,23 @@ class CleverTapPlugin {
   static Future<void> pushDisplayUnitClickedEvent(String unitId) async {
     return await _dartToNativeMethodChannel
         .invokeMethod('pushDisplayUnitClickedEvent', {'unitId': unitId});
+  }
+
+  /// Records a Notification Clicked event for a specific element within a Display Unit.
+  /// Caller-supplied [additionalProperties] (e.g. `wzrk_element_id`) are merged with
+  /// cached attribution fields from the unit for finer-grained click analytics.
+  ///
+  /// Parameters:
+  /// - [unitId]: The ID of the Display Unit
+  /// - [additionalProperties]: Properties to merge into the click event
+  static Future<void> pushDisplayUnitElementClickedEvent(
+    String unitId,
+    Map<String, dynamic> additionalProperties,
+  ) async {
+    return await _dartToNativeMethodChannel.invokeMethod(
+      'pushDisplayUnitElementClickedEvent',
+      {'unitId': unitId, 'additionalProperties': additionalProperties},
+    );
   }
 
   ///Feature Flags
