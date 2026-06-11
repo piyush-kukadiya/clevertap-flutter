@@ -191,6 +191,10 @@ static NSDateFormatter *dateFormatter;
         [self pushInboxNotificationClickedEventForId:call withResult:result];
     else if ([@"pushInboxNotificationViewedEventForId" isEqualToString:call.method])
         [self pushInboxNotificationViewedEventForId:call withResult:result];
+    else if ([@"fetchInbox" isEqualToString:call.method])
+        [self fetchInbox:call withResult:result];
+    else if ([@"fetchInboxWithCallback" isEqualToString:call.method])
+        [self fetchInboxWithCallback:call withResult:result];
     else if ([@"getInitialUrl" isEqualToString:call.method])
         [self getInitialUrl:call result:result];
     else if ([@"getAllDisplayUnits" isEqualToString:call.method])
@@ -201,6 +205,8 @@ static NSDateFormatter *dateFormatter;
         [self pushDisplayUnitViewedEvent:call withResult:result];
     else if ([@"pushDisplayUnitClickedEvent" isEqualToString:call.method])
         [self pushDisplayUnitClickedEvent:call withResult:result];
+    else if ([@"pushDisplayUnitElementClickedEventForID" isEqualToString:call.method])
+        [self pushDisplayUnitElementClickedEventForID:call withResult:result];
     else if ([@"fetch" isEqualToString:call.method])
         [self fetch:call withResult:result];
     else if ([@"fetchWithMinimumFetchIntervalInSeconds" isEqualToString:call.method])
@@ -782,6 +788,17 @@ static NSDateFormatter *dateFormatter;
     [[CleverTap sharedInstance]dismissAppInbox];
 }
 
+- (void)fetchInbox:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    [[CleverTap sharedInstance] fetchInboxWithCallback:nil];
+    result(nil);
+}
+
+- (void)fetchInboxWithCallback:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    [[CleverTap sharedInstance] fetchInboxWithCallback:^(BOOL success) {
+        result(@(success));
+    }];
+}
+
 - (CleverTapInboxStyleConfig*)_dictToInboxStyleConfig: (NSDictionary *)dict {
     
     CleverTapInboxStyleConfig *_config = [CleverTapInboxStyleConfig new];
@@ -880,6 +897,17 @@ static NSDateFormatter *dateFormatter;
 - (void)pushDisplayUnitClickedEvent:(FlutterMethodCall *)call withResult:(FlutterResult)result {
 
     [[CleverTap sharedInstance] recordDisplayUnitClickedEventForID:call.arguments[@"unitId"]];
+    result(nil);
+}
+
+- (void)pushDisplayUnitElementClickedEventForID:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSString *unitId = call.arguments[@"unitId"];
+    NSDictionary *additionalProperties = call.arguments[@"additionalProperties"];
+    if ([additionalProperties isKindOfClass:[NSNull class]]) {
+        additionalProperties = nil;
+    }
+    [[CleverTap sharedInstance] recordDisplayUnitElementClickedEventForID:unitId
+                                                     additionalProperties:additionalProperties];
     result(nil);
 }
 

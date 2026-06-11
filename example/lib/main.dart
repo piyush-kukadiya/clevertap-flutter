@@ -732,6 +732,16 @@ class _MyAppState extends State<MyApp> {
                         "Push Inbox Message Viewed",
                         pushInboxNotificationViewedEventForId,
                         "Pushes/Records inbox message viewed event"),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Fetch Inbox",
+                        fetchInbox,
+                        "Triggers an on-demand refresh of App Inbox messages (fire-and-forget, Android only)."),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Fetch Inbox with Callback",
+                        fetchInboxWithCallback,
+                        "Triggers an on-demand refresh and prints success/failure result (Android only)."),
                 ]),
                 _buildExpansionTile("Enable Debugging", [
                   _buildListTile("Set Debug Level", () {
@@ -795,6 +805,11 @@ class _MyAppState extends State<MyApp> {
                         "Returns session UTM details"),
                     _buildListTile("Get Ad Units", getAdUnits,
                         "Returns all Display Units set"),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Display Unit Element Clicked",
+                        pushDisplayUnitElementClickedEventForID,
+                        "Records element-level click analytics for a Display Unit (Android only)."),
                   ]),
                 _buildExpansionTile("GDPR", [ 
                   _buildListTile("Opt Out User", () => setOptOut(true), "Opt Out User fully"),
@@ -1781,6 +1796,35 @@ class _MyAppState extends State<MyApp> {
 
     // Uncomment to print payload.
     // printDisplayUnitPayload(displayUnits);
+  }
+
+  void fetchInbox() {
+    CleverTapPlugin.fetchInbox();
+    showToast("Inbox fetch triggered");
+    print("Fetch Inbox -> triggered (fire-and-forget)");
+  }
+
+  void fetchInboxWithCallback() {
+    CleverTapPlugin.fetchInbox(onComplete: (bool success) {
+      setState(() {
+        showToast("Inbox fetch result: $success");
+        print("Fetch Inbox with callback -> success: $success");
+      });
+    });
+    showToast("Inbox fetch with callback triggered");
+    print("Fetch Inbox with callback -> triggered");
+  }
+
+  void pushDisplayUnitElementClickedEventForID() {
+    Map<String, dynamic> additionalProperties = {
+      "wzrk_element_id": "banner_cta_1",
+      "wzrk_acct_id": "demo-account",
+    };
+    CleverTapPlugin.pushDisplayUnitElementClickedEventForID(
+        "unit-id-001", additionalProperties);
+    showToast("Display Unit element click recorded");
+    print(
+        "pushDisplayUnitElementClickedEventForID -> unitId: unit-id-001, props: $additionalProperties");
   }
 
   void promptForPushNotification() {

@@ -80,7 +80,7 @@ class CleverTapPlugin {
   static const libName = 'Flutter';
 
   static const libVersion =
-      40100; // If the current version is X.X.X then pass as X0X0X
+      40200; // If the current version is X.X.X then pass as X0X0X
 
   CleverTapPlugin._internal() {
     /// Set the CleverTap Flutter library name and the current version for version tracking
@@ -1135,6 +1135,27 @@ class CleverTapPlugin {
         'pushInboxNotificationViewedEventForId', {'messageId': messageId});
   }
 
+  /// Triggers an on-demand refresh of App Inbox messages from the server.
+  ///
+  /// Complements the automatic fetch that happens on app launch and user login.
+  /// Both forms are throttled to once every 5 minutes between consecutive calls.
+  ///
+  /// Parameters:
+  /// - [onComplete]: Optional callback invoked with `true` if messages were
+  ///   successfully fetched, or `false` if the request was throttled, disabled,
+  ///   or failed. Fires on the SDK's background thread — post to the main
+  ///   isolate if you need to update UI.
+  static Future<void> fetchInbox(
+      {void Function(bool success)? onComplete}) async {
+    if (onComplete == null) {
+      return await _dartToNativeMethodChannel.invokeMethod('fetchInbox', {});
+    } else {
+      final success = await _dartToNativeMethodChannel
+          .invokeMethod<bool>('fetchInboxWithCallback', {});
+      onComplete(success ?? false);
+    }
+  }
+
   /// only iOS - If an application is launched from a push notification click, returns the CleverTap deep link included in the push notification
   static Future<String?> getInitialUrl() async {
     return await _dartToNativeMethodChannel.invokeMethod('getInitialUrl', {});
@@ -1167,6 +1188,25 @@ class CleverTapPlugin {
   static Future<void> pushDisplayUnitClickedEvent(String unitId) async {
     return await _dartToNativeMethodChannel
         .invokeMethod('pushDisplayUnitClickedEvent', {'unitId': unitId});
+  }
+
+  /// Records a Notification Clicked event for a specific element within a
+  /// Display Unit, with caller-supplied additional properties.
+  ///
+  /// Use this when a Native Display unit contains multiple interactive elements
+  /// and you need element-level click analytics beyond the unit-level event
+  /// raised by [pushDisplayUnitClickedEvent].
+  ///
+  /// Parameters:
+  /// - [unitId]: The ID of the Display Unit.
+  /// - [additionalProperties]: Caller-supplied properties (e.g.
+  ///   `wzrk_element_id` from the action metadata) merged and enriched with
+  ///   cached `wzrk_*` attribution fields before the event is recorded.
+  static Future<void> pushDisplayUnitElementClickedEventForID(
+      String unitId, Map<String, dynamic> additionalProperties) async {
+    return await _dartToNativeMethodChannel.invokeMethod(
+        'pushDisplayUnitElementClickedEventForID',
+        {'unitId': unitId, 'additionalProperties': additionalProperties});
   }
 
   ///Feature Flags
