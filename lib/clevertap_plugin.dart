@@ -80,7 +80,7 @@ class CleverTapPlugin {
   static const libName = 'Flutter';
 
   static const libVersion =
-      40100; // If the current version is X.X.X then pass as X0X0X
+      40200; // If the current version is X.X.X then pass as X0X0X
 
   CleverTapPlugin._internal() {
     /// Set the CleverTap Flutter library name and the current version for version tracking
@@ -1135,6 +1135,17 @@ class CleverTapPlugin {
         'pushInboxNotificationViewedEventForId', {'messageId': messageId});
   }
 
+  /// Triggers an on-demand App Inbox refresh from the server.
+  ///
+  /// Calls are throttled to once every 5 minutes; if the throttle is active the
+  /// method returns false immediately without contacting the server.
+  ///
+  /// Returns: true if the fetch succeeded and messages were applied to the
+  /// local cache; false if throttled, disabled, or a network/server error occurred.
+  static Future<bool?> fetchInbox() async {
+    return await _dartToNativeMethodChannel.invokeMethod('fetchInbox', {});
+  }
+
   /// only iOS - If an application is launched from a push notification click, returns the CleverTap deep link included in the push notification
   static Future<String?> getInitialUrl() async {
     return await _dartToNativeMethodChannel.invokeMethod('getInitialUrl', {});
@@ -1167,6 +1178,22 @@ class CleverTapPlugin {
   static Future<void> pushDisplayUnitClickedEvent(String unitId) async {
     return await _dartToNativeMethodChannel
         .invokeMethod('pushDisplayUnitClickedEvent', {'unitId': unitId});
+  }
+
+  /// Records a Notification Clicked event for a specific element within a Display Unit.
+  ///
+  /// Parameters:
+  /// - [unitId]: The unitID of the Display Unit
+  /// - [additionalProperties]: Per-click context including `wzrk_element_id` and
+  ///   other `wzrk_*` attribution fields from the action's metadata
+  static Future<void> pushDisplayUnitElementClickedEvent(
+    String unitId,
+    Map<String, dynamic> additionalProperties,
+  ) async {
+    return await _dartToNativeMethodChannel.invokeMethod(
+      'pushDisplayUnitElementClickedEvent',
+      {'unitId': unitId, 'additionalProperties': additionalProperties},
+    );
   }
 
   ///Feature Flags

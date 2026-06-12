@@ -732,6 +732,11 @@ class _MyAppState extends State<MyApp> {
                         "Push Inbox Message Viewed",
                         pushInboxNotificationViewedEventForId,
                         "Pushes/Records inbox message viewed event"),
+                  if (!kIsWeb)
+                    _buildListTile(
+                        "Fetch Inbox",
+                        fetchInbox,
+                        "Triggers an on-demand App Inbox refresh; returns success/failure."),
                 ]),
                 _buildExpansionTile("Enable Debugging", [
                   _buildListTile("Set Debug Level", () {
@@ -795,6 +800,11 @@ class _MyAppState extends State<MyApp> {
                         "Returns session UTM details"),
                     _buildListTile("Get Ad Units", getAdUnits,
                         "Returns all Display Units set"),
+                    if (!kIsWeb)
+                      _buildListTile(
+                          "Display Unit Element Clicked",
+                          pushDisplayUnitElementClickedEvent,
+                          "Records a Notification Clicked event for a Display Unit element."),
                   ]),
                 _buildExpansionTile("GDPR", [ 
                   _buildListTile("Opt Out User", () => setOptOut(true), "Opt Out User fully"),
@@ -1781,6 +1791,28 @@ class _MyAppState extends State<MyApp> {
 
     // Uncomment to print payload.
     // printDisplayUnitPayload(displayUnits);
+  }
+
+  void fetchInbox() async {
+    bool? success = await CleverTapPlugin.fetchInbox();
+    if (success == null) {
+      showToast("Fetch Inbox -> no result");
+      print("Fetch Inbox -> null");
+    } else {
+      showToast("Fetch Inbox -> " + success.toString());
+      print("Fetch Inbox -> success: " + success.toString());
+    }
+  }
+
+  void pushDisplayUnitElementClickedEvent() {
+    Map<String, dynamic> additionalProperties = {
+      "wzrk_element_id": "btn_buy_now",
+      "wzrk_id": "1234567890_20260612",
+    };
+    CleverTapPlugin.pushDisplayUnitElementClickedEvent(
+        "sample_display_unit_id", additionalProperties);
+    showToast("Display Unit element click recorded");
+    print("Display Unit Element Clicked -> " + additionalProperties.toString());
   }
 
   void promptForPushNotification() {

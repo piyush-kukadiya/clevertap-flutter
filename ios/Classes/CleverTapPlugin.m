@@ -191,6 +191,8 @@ static NSDateFormatter *dateFormatter;
         [self pushInboxNotificationClickedEventForId:call withResult:result];
     else if ([@"pushInboxNotificationViewedEventForId" isEqualToString:call.method])
         [self pushInboxNotificationViewedEventForId:call withResult:result];
+    else if ([@"fetchInbox" isEqualToString:call.method])
+        [self fetchInbox:call withResult:result];
     else if ([@"getInitialUrl" isEqualToString:call.method])
         [self getInitialUrl:call result:result];
     else if ([@"getAllDisplayUnits" isEqualToString:call.method])
@@ -201,6 +203,8 @@ static NSDateFormatter *dateFormatter;
         [self pushDisplayUnitViewedEvent:call withResult:result];
     else if ([@"pushDisplayUnitClickedEvent" isEqualToString:call.method])
         [self pushDisplayUnitClickedEvent:call withResult:result];
+    else if ([@"pushDisplayUnitElementClickedEvent" isEqualToString:call.method])
+        [self pushDisplayUnitElementClickedEvent:call withResult:result];
     else if ([@"fetch" isEqualToString:call.method])
         [self fetch:call withResult:result];
     else if ([@"fetchWithMinimumFetchIntervalInSeconds" isEqualToString:call.method])
@@ -707,6 +711,12 @@ static NSDateFormatter *dateFormatter;
     result(nil);
 }
 
+- (void)fetchInbox:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    [[CleverTap sharedInstance] fetchInboxWithCallback:^(BOOL success) {
+        result(@(success));
+    }];
+}
+
 - (void)deleteInboxMessagesForIds:(FlutterMethodCall *)call withResult:(FlutterResult)result {
     [[CleverTap sharedInstance]deleteInboxMessagesForIDs:call.arguments[@"messageIds"]];
     result(nil);
@@ -880,6 +890,14 @@ static NSDateFormatter *dateFormatter;
 - (void)pushDisplayUnitClickedEvent:(FlutterMethodCall *)call withResult:(FlutterResult)result {
 
     [[CleverTap sharedInstance] recordDisplayUnitClickedEventForID:call.arguments[@"unitId"]];
+    result(nil);
+}
+
+- (void)pushDisplayUnitElementClickedEvent:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSString *unitId = call.arguments[@"unitId"];
+    NSDictionary *additionalProperties = call.arguments[@"additionalProperties"];
+    [[CleverTap sharedInstance] recordDisplayUnitElementClickedEventForID:unitId
+                                                     additionalProperties:additionalProperties];
     result(nil);
 }
 
