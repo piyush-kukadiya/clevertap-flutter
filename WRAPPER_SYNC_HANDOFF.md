@@ -1,6 +1,6 @@
 # Wrapper-Sync Automation — Flutter Handoff Doc
 
-**Status as of:** 2026-06-10 — **validated end-to-end on the fork.** A full both-platform sync (Android `8.1.0→8.3.0` + iOS `7.6.0→7.7.1`) ran green and opened a structured PR with re-implemented APIs, version bumps, and a CHANGELOG entry. Polish fixes (clean PR body + cost/changelog metadata, gitignored build noise) and the changelog **recall pass** are shipped.
+**Status as of:** 2026-06-12 — **validated end-to-end on the fork; source-verification hardening shipped.** The 2026-06-11 Flutter run (Android `8.1.0→8.3.0` + iOS `7.6.0→7.7.1`) was green WITH headless skill invocation working (all 5 skills invoked — the old "skills don't invoke" issue is RESOLVED). The same-day RN run failed post-sync (prompt's own reference code contained a non-existent iOS selector, copied verbatim); root-caused via the stream trace and fixed in tooling: **mandatory source-verification** ("verify-or-flag, never guess", Read/Grep tools on the cached native source), corrected reference code, `OTHER_PLATFORM_SYNCING` coordination flag, `source_verified` in the output schema.
 **Owner:** @piyush-kukadiya
 **Audience:** future Claude Code sessions starting fresh in this repo, and new developers picking up the Flutter wrapper-sync.
 
@@ -213,6 +213,9 @@ python3 .../clevertap-wrapper-tooling/tools/diff_native_api.py \
 ---
 
 ## Known issues / lessons learned
+- **Bash is denied outside the cwd; Read/Grep/Glob tools are not.** Headless Claude's allowlisted `Bash(grep:*)` still gets DENIED when the command references paths outside the wrapper checkout (e.g. `~/.cache/clevertap-sdk-versions/` where the diff tool caches native source). The Read/Grep tools work on any absolute path — prompts now explicitly say "use the Grep tool, not Bash" for native-source checks.
+- **Claude copies prompt reference code verbatim — keep it source-verified.** The RN prompt's iOS example contained `fetchInbox` (doesn't exist; correct is `fetchInboxWithCallback:`); a 2026-06-11 sync shipped it into the bridge → post-sync build failure (caught by the build gate, PR opened with `build-failed`). Both prompts now require source verification for EVERY native call and carry "verify, don't copy" warnings.
+- **Cross-platform coordination is deliberately flexible** (the regex diff once missed an Android API it caught for iOS — strict lanes leave holes). Now governed by "verify-or-flag, never guess" + the `OTHER_PLATFORM_SYNCING` env var (leave the other side to its own sync when it runs later).
 - **`uses:` doesn't follow org redirects.** After moving the tooling repo to the CleverTap org, every wrapper dispatch had to change `uses:` to `CleverTap/...@v1` (a redirect 422s the dispatch).
 - **Old release tags don't build on current toolchain** → use a `develop`-based baseline with rolled-back pins for testing.
 - **PR-body Claude can't read files outside its cwd** — so the sync logs are inlined into the PR-body prompt (don't revert to path-passing, or cost/native-changelog metadata goes missing).
